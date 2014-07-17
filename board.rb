@@ -1,4 +1,5 @@
 require_relative 'piece.rb'
+require 'colorize'
 
 class Board
 
@@ -37,4 +38,27 @@ class Board
       end
     end
   end
+
+  def display
+       print "   ┌#{"───┬"* (7)}───┐\n".colorize(:light_cyan)
+
+       (0...8).to_a.reverse.each do |y|
+         print " #{y+1}".colorize(:light_black)
+         print " │".colorize(:light_cyan)
+         8.times do |x|
+           if !self[[x,y]].nil?
+             print " #{self[[x,y]].display} "
+           else
+             print "   "
+           end
+           print "│".colorize(:light_cyan)
+         end
+         print "\n"
+         print "   ├#{"───┼" * (7)}───┤\n".colorize(:light_cyan) unless y == 0
+       end
+       print "   └#{"───┴"* (7)}───┘\n".colorize(:light_cyan)
+       print "     A   B   C   D   E   F   G   H  \n".colorize(:light_black)
+       nil
+  end
+
 end

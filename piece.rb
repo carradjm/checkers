@@ -12,20 +12,17 @@ class Piece
 
   attr_accessor :position
 
-  attr_reader :board, :color
+  attr_reader :board, :color, :king
 
   def initialize(position, board, color)
     @color = color
     @king = false
     @position = position
-  end
-
-  def move_diffs
+    @board = board
   end
 
   def perform_jump(start_pos, end_pos)
     true
-
   end
 
   def perform_slide(start_pos, end_pos)
@@ -45,19 +42,23 @@ class Piece
   end
 
   def moves
-    moves = []
+    move_pos = []
 
     SLIDE_DELTAS.each do |dx, dy|
-      moves << [self.location[0] + dx][self.location[1] + dy]
+      move_pos << [self.position[0] + dx, self.position[1] + dy]
     end
 
     JUMP_DELTAS.each do |dx, dy|
-      moves << [self.location[0] + dx][self.location[1] + dy]
+      move_pos << [self.position[0] + dx, self.position[1] + dy]
     end
 
-    moves.select {|move| board.on_board?(move)}
+    move_pos.select! {|move| board.on_board?(move) && board[move].nil?}
 
-    moves
+    if self.king == false
+      return move_pos.select {|move| move[1] > self.position[1]}
+    end
+
+
   end
 
   def valid_move_seq
@@ -66,6 +67,9 @@ class Piece
   def maybe_promote
   end
 
+  def display
+    color == :white ? "☠" : "⛔"
+  end
 end
 
 class IllegalMoveError < StandardError
