@@ -29,10 +29,16 @@ class Piece
   end
 
   def perform_slide(start_pos, end_pos)
-    true
     #changes the position of self to the end pos; sets the start pos as empty
+    if !board[end_pos].nil?
+      raise IllegalMoveError
+      puts "Can't move there!"
+      return false
+    end
     self.position = end_pos
-    self.board[[start_pos]] = nil
+    self.board[start_pos] = nil
+
+    true
   end
 
   def perform_moves!(*moves)
@@ -60,4 +66,7 @@ class Piece
   def maybe_promote
   end
 
+end
+
+class IllegalMoveError < StandardError
 end
