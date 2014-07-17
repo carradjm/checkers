@@ -1,20 +1,23 @@
 class Piece
 
-  MOVE_DELTAS = [[1,1],
+  SLIDE_DELTAS = [[1,1],
                  [-1,-1],
                  [-1,1],
                  [1,-1]]
 
-  CAPTURE_MOVES = [[2,2],
+  JUMP_DELTAS = [[2,2],
                    [-2,-2],
                    [-2,2],
                    [2,-2]]
 
+  attr_accessor :position
 
+  attr_reader :board, :color
 
-  def initialize(loc, board, color)
+  def initialize(position, board, color)
     @color = color
     @king = false
+    @position = position
   end
 
   def move_diffs
@@ -22,13 +25,33 @@ class Piece
 
   def perform_jump(start_pos, end_pos)
     true
+
   end
 
   def perform_slide(start_pos, end_pos)
     true
+    #changes the position of self to the end pos; sets the start pos as empty
+    self.position = end_pos
+    self.board[[start_pos]] = nil
   end
 
   def perform_moves!(*moves)
+  end
+
+  def moves
+    moves = []
+
+    SLIDE_DELTAS.each do |dx, dy|
+      moves << [self.location[0] + dx][self.location[1] + dy]
+    end
+
+    JUMP_DELTAS.each do |dx, dy|
+      moves << [self.location[0] + dx][self.location[1] + dy]
+    end
+
+    moves.select {|move| board.on_board?(move)}
+
+    moves
   end
 
   def valid_move_seq
