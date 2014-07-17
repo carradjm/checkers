@@ -1,10 +1,14 @@
 require_relative 'piece.rb'
 require 'colorize'
+require 'debugger'
 
 class Board
 
+  attr_reader :grid
+
   def initialize(duplicate = false)
     @grid = Array.new(8) {Array.new(8)}
+    @pieces = []
     setup_board if !duplicate
   end
 
@@ -37,14 +41,30 @@ class Board
         self[[x,y]] = Piece.new([x,y], self, :black) if (x + y) % 2 == 0
       end
     end
+
+    @pieces = @grid.flatten.compact
+    nil
   end
 
+  def dup
+    dup_board = Board.new(true)
+
+    @grid.flatten.compact.each do |piece|
+      dup_board[piece.position] = piece.dup(dup_board)
+    end
+
+    dup_board
+  end
+
+  def inspect
+    display
+  end
 
   def display
        print "   ┌#{"───┬"* (7)}───┐\n".colorize(:light_cyan)
 
        (0...8).to_a.reverse.each do |y|
-         print " #{y+1}".colorize(:light_black)
+         print " #{y}".colorize(:light_black)
          print " │".colorize(:light_cyan)
          8.times do |x|
            if !self[[x,y]].nil?
@@ -58,7 +78,7 @@ class Board
          print "   ├#{"───┼" * (7)}───┤\n".colorize(:light_cyan) unless y == 0
        end
        print "   └#{"───┴"* (7)}───┘\n".colorize(:light_cyan)
-       print "     A   B   C   D   E   F   G   H  \n".colorize(:light_black)
+       print "     0   1   2   3   4   5   6   7  \n".colorize(:light_black)
        nil
   end
 

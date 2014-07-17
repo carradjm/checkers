@@ -1,3 +1,4 @@
+require 'debugger'
 class Piece
 
   SLIDE_DELTAS = [[1,1],
@@ -48,8 +49,11 @@ class Piece
     start_pos = self.position
 
     if !@board[end_pos].nil? || @board[start_pos].nil?
-      raise IllegalMoveError
-      puts "Can't move there!"
+      return false
+    end
+
+    #return false if trying to run #perform_jump on a slide end_pos
+    if end_pos[0] - start_pos[0] == 1
       return false
     end
 
@@ -68,8 +72,6 @@ class Piece
       @board[end_pos].position = end_pos
       @board[start_pos] = nil
     else
-      raise IllegalMoveError
-      puts "Can't move there!"
       return false
     end
 
@@ -82,8 +84,10 @@ class Piece
     start_pos = self.position
 
     if !@board[end_pos].nil? || @board[start_pos].nil?
-      raise IllegalMoveError
-      puts "Can't move there!"
+      return false
+    end
+
+    if end_pos[0] - start_pos[0] != 1
       return false
     end
 
@@ -92,8 +96,6 @@ class Piece
       @board[end_pos].position = end_pos
       @board[start_pos] = nil
     else
-      raise IllegalMoveError
-      puts "Can't move there!"
       return false
     end
 
@@ -104,18 +106,53 @@ class Piece
   def perform_moves!(move_sequence)
     if move_sequence.count > 1
       until move_sequence.empty?
-        perform_jump(move_sequence.shift)
+        if perform_jump(move_sequence[0]) == false
+          raise InvalidMoveError
+        else
+          perform_jump(move_sequence[0])
+          move_sequence.shift
+        end
       end
     else
-      if (move_sequence[0][0] - self.position[0]).abs > 1
-        perform_jump(move_sequence.shift)
-      else
-        perform_slide(move_sequence.shift)
+
+      if perform_slide(move_sequence[0]) == false
+        if perform_jump(move_sequence[0]) == false
+          puts "you dun fked up"
+          raise InvalidMoveError
+        else
+          perform_jump(move_sequence[0])
+        end
       end
     end
   end
 
-  def valid_move_seq
+
+  def valid_move_seq?(move_sequence)
+    #call on a duped board
+    dup_board = board.dup
+
+    #allows me to grab the same piece on the duplicate board
+    dup_piece = dup_board[[self.position[0],self.position[1]]]
+
+
+    move_sequence.each do |move|
+      begin
+        dup_piece.perform_moves!([move])
+      rescue InvalidMoveError
+        puts "you dun fuked up"
+        return false
+      end
+    end
+
+    true
+  end
+
+  def perform_moves(move_sequence)
+    if valid_move_seq?(move_sequence)
+      perform_moves!(move_sequence)
+    else
+      raise InvalidMoveError
+    end
   end
 
   def maybe_promote
@@ -134,7 +171,14 @@ class Piece
     [self.color,self.position, self.king].inspect
   end
 
+  def dup(new_board)
+     Piece.new(position,new_board,color)
+  end
+
 end
 
-class IllegalMoveError < StandardError
+class InvalidMoveError < StandardError
+end
+
+class NoAvailableMoves < StandardError
 end
