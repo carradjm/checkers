@@ -55,13 +55,11 @@ include CheckerErrors
       puts "That piece has no available moves.  Pick another."
       retry
     end
-    #if jump available, keep getting input and adding to move_sequence
-    #until jump no longer available
 
-    # move_sequence = []
     begin
       puts "Where do you want to move? (e.g. 3,3)"
       end_pos = gets.chomp
+
       x_end = end_pos[0].to_i
       y_end = end_pos[2].to_i
 
@@ -71,11 +69,12 @@ include CheckerErrors
       retry
     end
 
-    begin
-      @board[[x_start, y_start]].perform_moves([[x_end, y_end]])
-    rescue InvalidMoveError
-      puts "You fucked something up dude"
-    end
+    @board[[x_start, y_start]].perform_moves([[x_end, y_end]])
+
+  end
+
+  def choose_move(player)
+
   end
 
   def won?
