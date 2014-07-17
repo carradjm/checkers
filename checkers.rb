@@ -1,5 +1,17 @@
 class Piece
 
+  MOVE_DELTAS = [[1,1],
+                 [-1,-1],
+                 [-1,1],
+                 [1,-1]]
+
+  CAPTURE_MOVES = [[2,2],
+                   [-2,-2],
+                   [-2,2],
+                   [2,-2]]
+
+
+
   def initialize(loc, board, color)
     @color = color
     @king = false
