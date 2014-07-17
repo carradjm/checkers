@@ -20,10 +20,12 @@ class Piece
   def move_diffs
   end
 
-  def perform_jump
+  def perform_jump(start_pos, end_pos)
+    true
   end
 
-  def perform_slide
+  def perform_slide(start_pos, end_pos)
+    true
   end
 
   def perform_moves!(*moves)
@@ -32,16 +34,7 @@ class Piece
   def valid_move_seq
   end
 
-
-
-end
-
-class Board
-
-  def initialize
-    @grid = Array.new(8) {Array.new(8)}
+  def maybe_promote
   end
 
-
 end
-
