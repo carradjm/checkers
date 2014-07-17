@@ -43,7 +43,9 @@ class Piece
     end
   end
 
-  def perform_jump(start_pos, end_pos)
+  def perform_jump(end_pos)
+
+    start_pos = self.position
 
     if !@board[end_pos].nil? || @board[start_pos].nil?
       raise IllegalMoveError
@@ -74,8 +76,9 @@ class Piece
     true
   end
 
-  def perform_slide(start_pos, end_pos)
+  def perform_slide(end_pos)
     #changes the position of self to the end pos; sets the start pos as empty
+    start_pos = self.position
 
     if !@board[end_pos].nil? || @board[start_pos].nil?
       raise IllegalMoveError
@@ -105,7 +108,7 @@ class Piece
   def maybe_promote
     last_rank = (color = :white ? 7 : 0)
 
-    if self.location[1] == last_rank
+    if self.position[1] == last_rank
       self.king == true
     end
   end
@@ -115,7 +118,7 @@ class Piece
   end
 
   def inspect
-    [self.color,self.position].inspect
+    [self.color,self.position, self.king].inspect
   end
 
 end
