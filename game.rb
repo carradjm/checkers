@@ -1,7 +1,12 @@
 require_relative 'board.rb'
 require 'debugger'
+require_relative 'CheckerErrors.rb'
 
 class Game
+include CheckerErrors
+
+  attr_accessor :board, :player1, :player2
+
 
   def initialize(player1, player2)
     @player1 = player1
@@ -27,80 +32,50 @@ class Game
   end
 
   def make_move(player)
-    #begin
-      puts "Pick a piece to move (e.g. 2,2)."
+    begin
+      check_available_jumps(player.color)
+    rescue MustTakeJump
+      puts "ALERT: Capture available."
+    end
+
+    begin
+      puts "#{player.name}, pick a piece to move (e.g. 2,2)."
 
       start_pos = gets.chomp
 
       x_start = start_pos[0].to_i
       y_start = start_pos[2].to_i
 
-      # check_if_player_piece([x_start,y_start],self.color)
- #      check_if_available_move([x_start,y_start],self.color)
- #    rescue NotYoPieceError
- #      puts "Please choose one of your own pieces."
- #      retry
- #    rescue NoAvailableMoveError
- #      puts "That piece has no available moves.  Pick another."
- #      retry
- #    end
-
-    # begin
-#       check_available_jumps
-#     rescue MustTakeJump
-#       puts "ALERT: Capture available."
-#     end
+      check_if_player_piece([x_start,y_start],player.color)
+      check_if_available_move([x_start,y_start],player.color)
+    rescue NotYoPieceError
+      puts "Please choose one of your own pieces."
+      retry
+    rescue NoAvailableMoveError
+      puts "That piece has no available moves.  Pick another."
+      retry
+    end
     #if jump available, keep getting input and adding to move_sequence
     #until jump no longer available
 
     # move_sequence = []
+    begin
+      puts "Where do you want to move? (e.g. 3,3)"
+      end_pos = gets.chomp
+      x_end = end_pos[0].to_i
+      y_end = end_pos[2].to_i
 
-    puts "Where do you want to move? (e.g. 3,3)"
-    end_pos = gets.chomp
-    x_end = end_pos[0].to_i
-    y_end = end_pos[2].to_i
-
-    @board[[x_start,y_start]].perform_moves([[x_end, y_end]])
-
-
-
-    # until check_available_jump == false
-#       begin
-#         "Next"
-#         move_sequence = [[x_end, y_end]]
-#       rescue CannotMoveThere
-#         puts "You cannot move your piece there.  Move to another space."
-#         retry
-#       end
-#     end
-  end
-
-      #check_end_pos - raise error if not empty, raise error if jump chosen
-      # but jump not available
-
-    #   @board[[x,y]].move #name this something else - moves the piece
-  #     # 1) if one jump available, make it, check if another jump is available
-  #   end
-  # end
-
-  def check_if_player_piece(start_pos,color)
-    if @board[start_pos].color != self.color
-      raise NotYoPieceError
+      check_if_moveable_spot([x_start, y_start],[x_end, y_end])
+    rescue CannotMoveThere
+      puts "You can't move there. Pick another space."
+      retry
     end
-  end
 
-  def check_if_available_move(start_pos, color)
-    raise NoAvailableMoveError if @board[start_pos].moves.empty?
-  end
-
-  def check_available_jumps
-    #check in move sequence for available jumps -
-    # if one exists, player must take it
-    raise MustTakeJump
-  end
-
-  def check_end_pos(end_pos, color)
-    raise CannotMoveThere if !@board[start_pos].moves.include?(end_pos)
+    begin
+      @board[[x_start, y_start]].perform_moves([[x_end, y_end]])
+    rescue InvalidMoveError
+      puts "You fucked something up dude"
+    end
   end
 
   def won?
@@ -121,7 +96,7 @@ end
 
 class HumanPlayer
 
-  attr_reader :color
+  attr_reader :color, :name
 
   def initialize(name, color)
     @name = name
@@ -135,14 +110,4 @@ p1 = HumanPlayer.new("Bob", "white")
 p2 = HumanPlayer.new("Steve", "black")
 
 game = Game.new(p1, p2)
-game.play
-
-
-class NotYoPieceError < StandardError
-end
-
-class MustTakeJump < StandardError
-end
-
-class CannotMoveThere < StandardError
-end
+# game.play

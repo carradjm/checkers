@@ -1,5 +1,8 @@
 require 'debugger'
+require_relative 'CheckerErrors.rb'
+
 class Piece
+include CheckerErrors
 
   SLIDE_DELTAS = [[1,1],
                  [-1,-1],
@@ -42,6 +45,22 @@ class Piece
         return move_pos.select {|move| move[1] < self.position[1]}
       end
     end
+  end
+
+  def capturable_pieces?
+
+    capture_pos = []
+
+    SLIDE_DELTAS.each do |dx, dy|
+      capture_pos << [self.position[0] + dx, self.position[1] + dy]
+    end
+
+    capture_pos.select! {|pos| @board.on_board?(pos)}
+
+    capture_pos.select! {|pos| !@board[pos].nil?}
+
+    return true if capture_pos.any? { |pos| @board[pos].color != self.color }
+    false
   end
 
   def perform_jump(end_pos)
@@ -114,8 +133,7 @@ class Piece
         end
       end
     else
-
-      if perform_slide(move_sequence[0]) == false
+      if self.capturable_pieces? == true
         if perform_jump(move_sequence[0]) == false
           puts "you dun fked up"
           raise InvalidMoveError
@@ -123,9 +141,15 @@ class Piece
           perform_jump(move_sequence[0])
         end
       end
+
+      if perform_slide(move_sequence[0]) == false
+        puts "you dun fked up"
+        raise InvalidMoveError
+      else
+          perform_jump(move_sequence[0])
+      end
     end
   end
-
 
   def valid_move_seq?(move_sequence)
     #call on a duped board
@@ -175,10 +199,4 @@ class Piece
      Piece.new(position,new_board,color)
   end
 
-end
-
-class InvalidMoveError < StandardError
-end
-
-class NoAvailableMoves < StandardError
 end
