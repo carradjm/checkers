@@ -24,6 +24,8 @@ class Board
   end
 
   def on_board?(pos)
+    # p [pos[0],pos[1]]
+
     (0..7).include?(pos[0]) && (0..7).include?(pos[1])
   end
 
