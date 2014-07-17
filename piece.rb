@@ -73,6 +73,7 @@ class Piece
       return false
     end
 
+    maybe_promote
     true
   end
 
@@ -96,10 +97,22 @@ class Piece
       return false
     end
 
+    maybe_promote
     true
   end
 
-  def perform_moves!(*moves)
+  def perform_moves!(move_sequence)
+    if move_sequence.count > 1
+      until move_sequence.empty?
+        perform_jump(move_sequence.shift)
+      end
+    else
+      if (move_sequence[0][0] - self.position[0]).abs > 1
+        perform_jump(move_sequence.shift)
+      else
+        perform_slide(move_sequence.shift)
+      end
+    end
   end
 
   def valid_move_seq
@@ -114,7 +127,7 @@ class Piece
   end
 
   def display
-    color == :white ? "☠" : "⛔"
+    color == :white ? "⚽" : "⛔"
   end
 
   def inspect
