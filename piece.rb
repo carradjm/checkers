@@ -32,8 +32,10 @@ include CheckerErrors
       move_pos << [self.position[0] + dx, self.position[1] + dy]
     end
 
-    JUMP_DELTAS.each do |dx, dy|
-      move_pos << [self.position[0] + dx, self.position[1] + dy]
+    if self.capturable_pieces?
+      JUMP_DELTAS.each do |dx, dy|
+        move_pos << [self.position[0] + dx, self.position[1] + dy]
+      end
     end
 
     move_pos.select! {|move| board.on_board?(move) && board[move].nil?}
@@ -133,7 +135,7 @@ include CheckerErrors
         end
       end
     else
-      if self.capturable_pieces? == true
+      if perform_slide(move_sequence[0]) == false
         if perform_jump(move_sequence[0]) == false
           puts "you dun fked up"
           raise InvalidMoveError
@@ -141,14 +143,7 @@ include CheckerErrors
           perform_jump(move_sequence[0])
         end
       end
-
-      if perform_slide(move_sequence[0]) == false
-        puts "you dun fked up"
-        raise InvalidMoveError
-      else
-          perform_jump(move_sequence[0])
-      end
-    end
+  end
   end
 
   def valid_move_seq?(move_sequence)
@@ -158,6 +153,7 @@ include CheckerErrors
     #allows me to grab the same piece on the duplicate board
     dup_piece = dup_board[[self.position[0],self.position[1]]]
 
+    p move_sequence
 
     move_sequence.each do |move|
       begin
@@ -183,7 +179,7 @@ include CheckerErrors
     last_rank = (color = :white ? 7 : 0)
 
     if self.position[1] == last_rank
-      self.king == true
+      self.king = true
     end
   end
 
