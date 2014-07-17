@@ -39,6 +39,7 @@ class Board
     end
   end
 
+
   def display
        print "   ┌#{"───┬"* (7)}───┐\n".colorize(:light_cyan)
 
